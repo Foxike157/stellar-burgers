@@ -1,4 +1,5 @@
-import { configureStore } from '@reduxjs/toolkit';
+import { configureStore, combineReducers } from '@reduxjs/toolkit';
+import { socketMiddleware } from './middleware/socketMiddleware';
 
 import {
   TypedUseSelectorHook,
@@ -6,15 +7,36 @@ import {
   useSelector as selectorHook
 } from 'react-redux';
 
-const rootReducer = () => {}; // Заменить на импорт настоящего редьюсера
+import ingredientReducer from './slices/ingredientSlice';
+import constructorReducer from './slices/constructorSlice';
+import orderReducer from './slices/orderSlice';
+import userReducer from './slices/userSlice';
+import feedReducer, * as feedActions from './slices/feedSlice';
+import profileOrdersReducer, * as profileOrdersActions from './slices/profileOrdersSlice';
+
+const feedUrl = 'wss://norma.education-services.ru/orders/all';
+const profileOrdersUrl = 'wss://norma.education-services.ru/orders';
+
+const rootReducer = combineReducers({
+  ingredients: ingredientReducer,
+  burgerConstructor: constructorReducer,
+  order: orderReducer,
+  user: userReducer,
+  feed: feedReducer,
+  profileOrders: profileOrdersReducer
+});
 
 const store = configureStore({
   reducer: rootReducer,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(
+      socketMiddleware(feedUrl, feedActions),
+      socketMiddleware(profileOrdersUrl, profileOrdersActions, true)
+    ),
   devTools: process.env.NODE_ENV !== 'production'
 });
 
 export type RootState = ReturnType<typeof rootReducer>;
-
 export type AppDispatch = typeof store.dispatch;
 
 export const useDispatch: () => AppDispatch = () => dispatchHook();

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 
-import '../../index.css';
+import '../index.css';
 import styles from './app.module.css';
 
 import { AppHeader } from '@components';
@@ -24,8 +24,9 @@ import { OrderInfo } from '../order-info';
 import { IngredientDetails } from '../ingredient-details';
 import { ProtectedRoute } from '../protected-route/protected-route';
 
-import { useDispatch, useSelector } from '../../services/store';
-import { checkUserAuth } from '../../services/slices/userSlice';
+import { useDispatch, useSelector } from '../services/store';
+import { checkUserAuth } from '../services/slices/userSlice';
+import { fetchIngredients } from '../services/slices/ingredientSlice';
 
 const App = () => {
   const dispatch = useDispatch();
@@ -39,6 +40,7 @@ const App = () => {
 
   useEffect(() => {
     dispatch(checkUserAuth());
+    dispatch(fetchIngredients());
   }, [dispatch]);
 
   const closeModal = () => {
@@ -53,11 +55,11 @@ const App = () => {
         <Preloader />
       ) : (
         <>
-          {/* основные роуты */}
+          {/* Основные маршруты — включая прямой доступ */}
           <Routes location={backgroundLocation || location}>
             <Route path='/' element={<ConstructorPage />} />
-
-            <Route path='/feed/*' element={<FeedPage />} />
+            <Route path='/feed' element={<FeedPage />} />
+            <Route path='/feed/:number' element={<OrderInfo />} /> {/* ← прямой доступ */}
 
             <Route path='/ingredients/:id' element={<IngredientDetails />} />
 
@@ -94,7 +96,7 @@ const App = () => {
             <Route path='*' element={<NotFound404 />} />
           </Routes>
 
-          {/* модалки */}
+          {/* Модальные окна — только при наличии backgroundLocation */}
           {backgroundLocation && (
             <Routes>
               <Route

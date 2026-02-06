@@ -1,5 +1,8 @@
 import { Middleware } from '@reduxjs/toolkit';
 import { getCookie } from '../../utils/cookie';
+import { TOrdersData } from '../../utils/types';
+
+type TWsMessagePayload = { success: boolean } & Partial<TOrdersData>;
 
 type TWsActions = {
   wsConnect: () => { type: string };
@@ -7,7 +10,7 @@ type TWsActions = {
   wsOpen: () => { type: string };
   wsClose: () => { type: string };
   wsError: (payload: string) => { type: string; payload: string };
-  wsMessage: (payload: any) => { type: string; payload: any };
+  wsMessage: (payload: TWsMessagePayload) => { type: string; payload: TWsMessagePayload };
 };
 
 export const socketMiddleware =
@@ -15,14 +18,12 @@ export const socketMiddleware =
   (store) => {
     let socket: WebSocket | null = null;
 
-    return (next) => (action: any) => {
+    return (next) => (action: ReturnType<typeof actions[keyof typeof actions]>) => {
       const { dispatch } = store;
 
       if (action.type === actions.wsConnect().type) {
         const token = getCookie('accessToken')?.replace('Bearer ', '');
-
         const url = withAuth && token ? `${wsUrl}?token=${token}` : wsUrl;
-
         socket = new WebSocket(url);
       }
 
@@ -41,7 +42,7 @@ export const socketMiddleware =
         };
 
         socket.onmessage = (event) => {
-          const data = JSON.parse(event.data);
+          const data = JSON.parse(event.data) as TWsMessagePayload;
           dispatch(actions.wsMessage(data));
         };
 

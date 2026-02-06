@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { orderBurgerApi } from '@api';
 import { TOrder } from '@utils-types';
+import { clearConstructor } from './constructorSlice';
 
 type TOrderState = {
   order: TOrder | null;
@@ -16,9 +17,12 @@ const initialState: TOrderState = {
 
 export const createOrder = createAsyncThunk(
   'order/createOrder',
-  async (ingredients: string[]) => {
+  async (ingredients: string[], { dispatch }) => {
     const data = await orderBurgerApi(ingredients);
-    return data;
+    
+    dispatch(clearConstructor());
+
+    return data.order; // возвращаем только объект заказа
   }
 );
 
@@ -40,7 +44,7 @@ const orderSlice = createSlice({
       })
       .addCase(createOrder.fulfilled, (state, action) => {
         state.orderRequest = false;
-        state.order = action.payload.order;
+        state.order = action.payload; // action.payload — это TOrder
       })
       .addCase(createOrder.rejected, (state) => {
         state.orderRequest = false;

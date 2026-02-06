@@ -23,6 +23,12 @@ export const OrderInfo: FC = () => {
 
     const date = new Date(orderData.createdAt);
 
+    // Маппинг статуса для отображения
+    const statusMap: Record<string, string> = {
+      done: 'Выполнен',
+      pending: 'Готовится'
+    };
+
     type TIngredientsWithCount = {
       [key: string]: TIngredient & { count: number };
     };
@@ -53,6 +59,7 @@ export const OrderInfo: FC = () => {
 
     return {
       ...orderData,
+      statusText: statusMap[orderData.status] || orderData.status,
       ingredientsInfo,
       date,
       total
@@ -65,3 +72,5 @@ export const OrderInfo: FC = () => {
 
   return <OrderInfoUI orderInfo={orderInfo} />;
 };
+
+

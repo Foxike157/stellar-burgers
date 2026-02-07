@@ -1,33 +1,32 @@
-import { FC, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
-
-import { useSelector } from '../../services/store';
+import { FC, useEffect, useMemo } from 'react';
 import { Preloader } from '../ui/preloader';
 import { OrderInfoUI } from '../ui/order-info';
-
 import { TIngredient } from '@utils-types';
+import { useParams } from 'react-router-dom';
+import { useDispatch, useSelector } from '../../services/store';
+import { getFeedModal } from '../../services/feed/slice';
+import { getIngredients } from '../../services/ingredients/slice';
+import { getOrderByNumber } from '../../services/feed/actions';
 
 export const OrderInfo: FC = () => {
-  const { number } = useParams<{ number: string }>();
+  const { number } = useParams();
+  const dispatch = useDispatch();
 
-  const orders = useSelector((state) => state.feed.orders);
-  const ingredients = useSelector((state) => state.ingredients.ingredients);
+  /** TODO: взять переменные orderData и ingredients из стора */
+  const orderData = useSelector(getFeedModal);
+  const ingredients: TIngredient[] = useSelector(getIngredients);
 
-  const orderData = useMemo(() => {
-    if (!orders.length || !number) return null;
-    return orders.find((order) => order.number === Number(number)) || null;
-  }, [orders, number]);
+  useEffect(() => {
+    if (number) {
+      dispatch(getOrderByNumber(Number(number)));
+    }
+  }, [dispatch, number]);
 
+  /* Готовим данные для отображения */
   const orderInfo = useMemo(() => {
     if (!orderData || !ingredients.length) return null;
 
     const date = new Date(orderData.createdAt);
-
-    // Маппинг статуса для отображения
-    const statusMap: Record<string, string> = {
-      done: 'Выполнен',
-      pending: 'Готовится'
-    };
 
     type TIngredientsWithCount = {
       [key: string]: TIngredient & { count: number };
@@ -35,14 +34,14 @@ export const OrderInfo: FC = () => {
 
     const ingredientsInfo = orderData.ingredients.reduce(
       (acc: TIngredientsWithCount, item) => {
-        const ingredient = ingredients.find((ing) => ing._id === item);
-        if (!ingredient) return acc;
-
         if (!acc[item]) {
-          acc[item] = {
-            ...ingredient,
-            count: 1
-          };
+          const ingredient = ingredients.find((ing) => ing._id === item);
+          if (ingredient) {
+            acc[item] = {
+              ...ingredient,
+              count: 1
+            };
+          }
         } else {
           acc[item].count++;
         }
@@ -59,7 +58,6 @@ export const OrderInfo: FC = () => {
 
     return {
       ...orderData,
-      statusText: statusMap[orderData.status] || orderData.status,
       ingredientsInfo,
       date,
       total
@@ -72,5 +70,3 @@ export const OrderInfo: FC = () => {
 
   return <OrderInfoUI orderInfo={orderInfo} />;
 };
-
-

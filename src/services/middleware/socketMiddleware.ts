@@ -1,10 +1,9 @@
 import { Middleware } from '@reduxjs/toolkit';
 import { getCookie } from '../../utils/cookie';
-import { TOrdersData } from '../../utils/types';
 
-type TWsMessagePayload = { success: boolean } & Partial<TOrdersData>;
+type TWsMessagePayload = Record<string, unknown>;
 
-type TWsActions = {
+export type TWsActions = {
   wsConnect: () => { type: string };
   wsDisconnect: () => { type: string };
   wsOpen: () => { type: string };
@@ -18,7 +17,7 @@ export const socketMiddleware =
   (store) => {
     let socket: WebSocket | null = null;
 
-    return (next) => (action: ReturnType<typeof actions[keyof typeof actions]>) => {
+    return (next) => (action: any) => {
       const { dispatch } = store;
 
       if (action.type === actions.wsConnect().type) {

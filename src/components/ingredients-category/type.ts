@@ -1,9 +1,7 @@
-import { RefObject } from 'react';
 import { TIngredient } from '@utils-types';
 
 export type TIngredientsCategoryProps = {
   title: string;
-  titleRef: RefObject<HTMLHeadingElement>;
+  titleRef: React.RefObject<HTMLHeadingElement>;
   ingredients: TIngredient[];
-  ingredientsCounters: Record<string, number>;
 };

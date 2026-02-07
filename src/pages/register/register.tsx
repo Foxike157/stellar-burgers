@@ -1,42 +1,49 @@
-import { FC, SyntheticEvent, useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-
+import { FC, SyntheticEvent, useState } from 'react';
 import { RegisterUI } from '@ui-pages';
 import { useDispatch, useSelector } from '../../services/store';
-import { registerUser } from '../../services/slices/userSlice';
+import { getLoading } from '../../services/user/slice';
+import { Preloader } from '@ui';
+import { TRegisterData } from '@api';
+import { registerUser } from '../../services/user/actions';
+import { useNavigate } from 'react-router-dom';
 
 export const Register: FC = () => {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  const { user, error } = useSelector((state) => state.user);
-
-  const [name, setName] = useState('');
+  const [userName, setUserName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSubmit = (e: SyntheticEvent) => {
+  const dispatch = useDispatch();
+  const isLoading = useSelector(getLoading);
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
-    dispatch(registerUser({ name, email, password }));
+    const registerData: TRegisterData = {
+      name: userName,
+      email: email,
+      password: password
+    };
+    try {
+      await dispatch(registerUser(registerData));
+      navigate('/login');
+    } catch (error) {
+      console.error(error);
+    }
   };
 
-  useEffect(() => {
-    if (user) {
-      const from = location.state?.from?.pathname || '/';
-      navigate(from, { replace: true });
-    }
-  }, [user, navigate, location.state]);
+  if (isLoading) {
+    return <Preloader />;
+  }
 
   return (
     <RegisterUI
-      errorText={error || ''}
-      userName={name}
-      setUserName={setName}
+      errorText=''
       email={email}
-      setEmail={setEmail}
+      userName={userName}
       password={password}
+      setEmail={setEmail}
       setPassword={setPassword}
+      setUserName={setUserName}
       handleSubmit={handleSubmit}
     />
   );

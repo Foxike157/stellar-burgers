@@ -1,6 +1,6 @@
 import { FC } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAppSelector } from '../../services/store'; // ✅
+import { useSelector } from '../../services/store'; // ← useAppSelector → useSelector
 
 type TProtectedRouteProps = {
   component: JSX.Element;
@@ -11,7 +11,8 @@ export const ProtectedRoute: FC<TProtectedRouteProps> = ({
   component,
   onlyUnAuth = false
 }) => {
-  const user = useAppSelector((state) => state.user.user); // ✅
+  // Указываем тип для state через RootState (уже есть в store)
+  const user = useSelector((state) => state.user.user);
   const location = useLocation();
 
   if (onlyUnAuth && user) {

@@ -1,7 +1,6 @@
 import { FC, SyntheticEvent, useState } from 'react';
 import { RegisterUI } from '@ui-pages';
 import { useDispatch, useSelector } from '../../services/store';
-import { getLoading } from '../../services/user/slice';
 import { Preloader } from '@ui';
 import { TRegisterData } from '@api';
 import { registerUser } from '../../services/user/actions';
@@ -13,7 +12,8 @@ export const Register: FC = () => {
   const [password, setPassword] = useState('');
 
   const dispatch = useDispatch();
-  const isLoading = useSelector(getLoading);
+
+  const isLoading = useSelector((state) => state.user.isLoading);
   const navigate = useNavigate();
 
   const handleSubmit = async (e: SyntheticEvent) => {

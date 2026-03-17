@@ -15,7 +15,9 @@
     "isolatedModules": true,
     "noEmit": false,
     "jsx": "react-jsx",
+
     "types": ["node", "jest"],
+
     "baseUrl": ".",
     "paths": {
       "@pages": ["src/pages"],

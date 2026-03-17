@@ -1,25 +1,16 @@
-import { Preloader } from '@ui';
+import { FC } from 'react';
+import { useSelector } from '../../services/store';
 import { FeedUI } from '@ui-pages';
-import { TOrder } from '@utils-types';
-import { FC, useEffect } from 'react';
-import { useDispatch, useSelector } from '../../services/store';
-import { getFeedOrders, getLoading } from '../../services/feed/slice';
-import { getFeedsFromApi } from '../../services/feed/actions';
+import { Preloader } from '@ui';
 
-export const Feed: FC = () => {
-  const dispatch = useDispatch();
-  const isLoading = useSelector(getLoading);
-  const orders: TOrder[] = useSelector(getFeedOrders);
+type FeedProps = {
+  handleGetFeeds: () => void;
+};
 
-  useEffect(() => {
-    dispatch(getFeedsFromApi());
-  }, [dispatch]);
+export const Feed: FC<FeedProps> = ({ handleGetFeeds }) => {
+  const { orders } = useSelector((state) => state.feed);
 
-  const handleGetFeeds = () => {
-    dispatch(getFeedsFromApi()); // ← обновление по кнопке
-  };
-
-  if (!orders.length || isLoading) {
+  if (!orders.length) {
     return <Preloader />;
   }
 

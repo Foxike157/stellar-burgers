@@ -1,21 +1,19 @@
 import { FC } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ProfileMenuUI } from '@ui';
 import { useDispatch } from '../../services/store';
-import { logoutUser } from '../../services/user/actions';
+import { logoutUser } from '../../services/slices/userSlice';
+
+import { ProfileMenuUI } from '@ui';
 
 export const ProfileMenu: FC = () => {
   const { pathname } = useLocation();
-  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  const handleLogout = async () => {
-    try {
-      await dispatch(logoutUser());
-      navigate('/');
-    } catch (error) {
-      console.error('Не удалось выполнить выход');
-    }
+  const handleLogout = () => {
+    dispatch(logoutUser()).then(() => {
+      navigate('/login');
+    });
   };
 
   return <ProfileMenuUI handleLogout={handleLogout} pathname={pathname} />;

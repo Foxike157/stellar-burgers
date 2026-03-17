@@ -1,15 +1,13 @@
 import { Middleware } from '@reduxjs/toolkit';
 import { getCookie } from '../../utils/cookie';
 
-type TWsMessagePayload = Record<string, unknown>;
-
-export type TWsActions = {
+type TWsActions = {
   wsConnect: () => { type: string };
   wsDisconnect: () => { type: string };
   wsOpen: () => { type: string };
   wsClose: () => { type: string };
   wsError: (payload: string) => { type: string; payload: string };
-  wsMessage: (payload: TWsMessagePayload) => { type: string; payload: TWsMessagePayload };
+  wsMessage: (payload: any) => { type: string; payload: any };
 };
 
 export const socketMiddleware =
@@ -22,7 +20,9 @@ export const socketMiddleware =
 
       if (action.type === actions.wsConnect().type) {
         const token = getCookie('accessToken')?.replace('Bearer ', '');
+
         const url = withAuth && token ? `${wsUrl}?token=${token}` : wsUrl;
+
         socket = new WebSocket(url);
       }
 
@@ -41,7 +41,7 @@ export const socketMiddleware =
         };
 
         socket.onmessage = (event) => {
-          const data = JSON.parse(event.data) as TWsMessagePayload;
+          const data = JSON.parse(event.data);
           dispatch(actions.wsMessage(data));
         };
 

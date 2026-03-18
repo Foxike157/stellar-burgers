@@ -1,49 +1,42 @@
-import { FC, SyntheticEvent, useState } from 'react';
+import { FC, SyntheticEvent, useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+
 import { RegisterUI } from '@ui-pages';
 import { useDispatch, useSelector } from '../../services/store';
-import { Preloader } from '@ui';
-import { TRegisterData } from '@api';
-import { registerUser } from '../../services/user/actions';
-import { useNavigate } from 'react-router-dom';
+import { registerUser } from '../../services/slices/userSlice';
 
 export const Register: FC = () => {
-  const [userName, setUserName] = useState('');
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const { user, error } = useSelector((state) => state.user);
+
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const dispatch = useDispatch();
-
-  const isLoading = useSelector((state) => state.user.isLoading);
-  const navigate = useNavigate();
-
-  const handleSubmit = async (e: SyntheticEvent) => {
+  const handleSubmit = (e: SyntheticEvent) => {
     e.preventDefault();
-    const registerData: TRegisterData = {
-      name: userName,
-      email: email,
-      password: password
-    };
-    try {
-      await dispatch(registerUser(registerData));
-      navigate('/login');
-    } catch (error) {
-      console.error(error);
-    }
+    dispatch(registerUser({ name, email, password }));
   };
 
-  if (isLoading) {
-    return <Preloader />;
-  }
+  useEffect(() => {
+    if (user) {
+      const from = location.state?.from?.pathname || '/';
+      navigate(from, { replace: true });
+    }
+  }, [user, navigate, location.state]);
 
   return (
     <RegisterUI
-      errorText=''
+      errorText={error || ''}
+      userName={name}
+      setUserName={setName}
       email={email}
-      userName={userName}
-      password={password}
       setEmail={setEmail}
+      password={password}
       setPassword={setPassword}
-      setUserName={setUserName}
       handleSubmit={handleSubmit}
     />
   );

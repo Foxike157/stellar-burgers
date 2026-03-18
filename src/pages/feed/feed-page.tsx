@@ -1,13 +1,16 @@
 import { FC, useEffect, useCallback } from 'react';
-import { useDispatch } from '../../services/store'; // ← useAppDispatch → useDispatch
+
+import { useDispatch } from '../../services/store';
 import { wsConnect, wsDisconnect } from '../../services/slices/feedSlice';
+
 import { Feed } from './feed';
 
 export const FeedPage: FC = () => {
-  const dispatch = useDispatch(); // ← правильно
+  const dispatch = useDispatch();
 
   useEffect(() => {
     dispatch(wsConnect());
+
     return () => {
       dispatch(wsDisconnect());
     };
@@ -18,6 +21,5 @@ export const FeedPage: FC = () => {
     dispatch(wsConnect());
   }, [dispatch]);
 
-
-  return <Feed />;
+  return <Feed handleGetFeeds={handleGetFeeds} />;
 };

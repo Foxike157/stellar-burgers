@@ -1,37 +1,35 @@
 /// <reference types="cypress" />
-// ***********************************************
-// This example commands.ts shows you how to
-// create various custom commands and overwrite
-// existing commands.
-//
-// For more comprehensive examples of custom
-// commands please read more here:
-// https://on.cypress.io/custom-commands
-// ***********************************************
-//
-//
-// -- This is a parent command --
-// Cypress.Commands.add('login', (email, password) => { ... })
-//
-//
-// -- This is a child command --
-// Cypress.Commands.add('drag', { prevSubject: 'element'}, (subject, options) => { ... })
-//
-//
-// -- This is a dual command --
-// Cypress.Commands.add('dismiss', { prevSubject: 'optional'}, (subject, options) => { ... })
-//
-//
-// -- This will overwrite an existing command --
-// Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
-//
-// declare global {
-//   namespace Cypress {
-//     interface Chainable {
-//       login(email: string, password: string): Chainable<void>
-//       drag(subject: string, options?: Partial<TypeOptions>): Chainable<Element>
-//       dismiss(subject: string, options?: Partial<TypeOptions>): Chainable<Element>
-//       visit(originalFn: CommandOriginalFn, url: string, options: Partial<VisitOptions>): Chainable<Element>
-//     }
-//   }
-// }
+
+// Кастомные команды
+Cypress.Commands.add('openIngredientModal', (ingredientName: string) => {
+  cy.contains(ingredientName).click();
+});
+
+Cypress.Commands.add('closeModal', () => {
+  cy.get('#modals')
+    .find('svg')
+    .first()
+    .click({ force: true });
+});
+
+Cypress.Commands.add('addIngredient', (ingredientName: string) => {
+  cy.contains(ingredientName)
+    .parents('li')
+    .find('button')
+    .contains('Добавить')
+    .click({ force: true });
+});
+
+//  типизация для TypeScript
+declare global {
+  namespace Cypress {
+    interface Chainable {
+      openIngredientModal(ingredientName: string): Chainable;
+      closeModal(): Chainable;
+      addIngredient(ingredientName: string): Chainable;
+    }
+  }
+}
+
+//  экспорт для преобразования файла в модуль
+export {};
